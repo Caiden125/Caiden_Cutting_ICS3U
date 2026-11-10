@@ -91,7 +91,7 @@ while running:
             player = pygame.Rect(player_x, player_y, player_width, player_height)
 
         player_y += 50
-#testtesttets
+#testtesttetstesttsttet
         # Keep the player inside the screen
         if player_x < 0:
             player_x = 0
