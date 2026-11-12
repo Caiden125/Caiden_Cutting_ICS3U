@@ -1,27 +1,29 @@
+# Imports
 import pygame, random
 
+# Pygame
 pygame.init()
 
-# Set screen resolution
+# Screen resolution
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 800
 
-# Create the game window
+# Game window
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Simple Maze Game")
 
-# Set up colours
-WHITE = (255, 255, 255)
+# Colours
 BLUE = (0, 0, 200)
 RED = (255, 0, 0)
 GREEN = (0, 200, 0)
-BLACK = (0, 0, 0)
 BACK = (4, 7, 32)
 YELLOW = (255, 255, 0)
 
+# Player size defining variables
 player_size_x = 0
 player_size_y = 0
 
+# Spawn player function
 def spawn_player():
     shape = random.choice(["shape1", "shape2", "shape3", "shape4"])
 
@@ -57,29 +59,71 @@ player_shape = player["shape"]
 player_width = player["width"]
 player_height = player["height"]
 
-# Set up the player
+# Player speed
 speed = 3
 
-# Set up the game
+# Game varibles
 clock = pygame.time.Clock()
 running = True
 won = False
 
+# Locked shape list
 locked_shapes = []
 
-# Main game loop
+# Function for row clearing
+def clear_full_rows():
+    global locked_shapes
+
+    rows = {}
+
+    # Count how many pixels are filled in each row
+    for shape in locked_shapes:
+        y = shape["y"]
+
+        if y not in rows:
+            rows[y] = 0
+
+        rows[y] += shape["width"]
+
+    # Find rows that span the entire screen width
+    full_rows = []
+
+    for y, width in rows.items():
+        if width >= SCREEN_WIDTH:
+            full_rows.append(y)
+
+    # Remove shapes in full rows
+    for row_y in full_rows:
+
+        locked_shapes = [
+            shape for shape in locked_shapes
+            if shape["y"] != row_y
+        ]
+
+        # Move shapes above downward
+        for shape in locked_shapes:
+            if shape["y"] < row_y:
+                shape["y"] += 100
+
+# game loop
 while running:
 
-    # Check for events
+    # event check
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
 
-    # Get the keys being pressed
+    # Keybinds and key presses
     keys = pygame.key.get_pressed()
 
+    # Check if player has not won
     if not won:
 
+        # If the player reaches the top the game ends
+        for shape in locked_shapes:
+            if shape["y"] == 0:
+                running = false
+        
         # Move left
         if keys[pygame.K_a]:
             player_x -= 50
@@ -90,15 +134,17 @@ while running:
             player_x += 50
             player = pygame.Rect(player_x, player_y, player_width, player_height)
 
-        # Move down
+        # Speed up moving down
         if keys[pygame.K_SPACE]:
             player_y += 50
             player = pygame.Rect(player_x, player_y, player_width, player_height)
 
+        # Gravity
         player_y += 50
 
         player_rect = pygame.Rect(player_x, player_y, player_width, player_height)
 
+        # Locked shapes collision
         for shape in locked_shapes:
             locked_rect = pygame.Rect(
                 shape["x"],
@@ -119,6 +165,8 @@ while running:
                     "shape": player_shape
                 })
 
+                clear_full_rows()
+
                 player = spawn_player()
                 player_x = player["x"]
                 player_y = player["y"]
@@ -126,7 +174,7 @@ while running:
                 player_width = player["width"]
                 player_height = player["height"]
 
-        # Keep the player inside the screen
+        # Borders
         if player_x < 0:
             player_x = 0
 
@@ -136,6 +184,7 @@ while running:
         if player_y < 0:
             player_y = 0
 
+        # Bottom border for if the player reaches it
         if player_y >= SCREEN_HEIGHT - player_height:
             locked_shapes.append({
                 "x": player_x,
@@ -145,6 +194,8 @@ while running:
                 "shape": player_shape
             })
 
+            clear_full_rows()
+
             player = spawn_player()
             player_x = player["x"]
             player_y = player["y"]
@@ -152,12 +203,13 @@ while running:
             player_width = player["width"]
             player_height = player["height"]
 
-        # Update the player rectangle
+        # Player shape update
         player = pygame.Rect(player_x, player_y, player_width, player_height)
 
     # Draw the background
     screen.fill(BACK)
 
+    # Shape colours
     if player_shape == "shape1":
         colour = GREEN
 
@@ -169,6 +221,7 @@ while running:
 
     if player_shape == "shape4":
         colour = YELLOW
+
     # Draw locked shapes
     for shape in locked_shapes:
 
@@ -176,8 +229,10 @@ while running:
             shape_colour = GREEN
         elif shape["shape"] == "shape2":
             shape_colour = RED
-        elif shape
+        elif shape["shape"] == "shape3":
             shape_colour = BLUE
+        else:
+            shape_colour = YELLOW
 
         pygame.draw.rect(
             screen,
@@ -197,8 +252,8 @@ while running:
     # Update the display
     pygame.display.flip()
 
-    # Limit the game to 60 FPS
+    # Limit the game to 7.5 fps
     clock.tick(7.5)
 
-# Close Pygame
+# Close pygame
 pygame.quit()
