@@ -18,6 +18,7 @@ RED = (255, 0, 0)
 GREEN = (0, 200, 0)
 BACK = (4, 7, 32)
 YELLOW = (255, 255, 0)
+WHITE = (255, 255, 255)
 
 # Player size defining variables
 player_size_x = 0
@@ -66,13 +67,14 @@ speed = 3
 clock = pygame.time.Clock()
 running = True
 won = False
+score = 0
 
 # Locked shape list
 locked_shapes = []
 
 # Function for row clearing
 def clear_full_rows():
-    global locked_shapes
+    global locked_shapes, score
 
     rows = {}
 
@@ -94,6 +96,8 @@ def clear_full_rows():
 
     # Remove shapes in full rows
     for row_y in full_rows:
+
+        score = score + 100
 
         locked_shapes = [
             shape for shape in locked_shapes
@@ -120,9 +124,9 @@ while running:
     if not won:
 
         # If the player reaches the top the game ends
-        for shape in locked_shapes:
-            if shape["y"] == 0:
-                running = false
+        #for shape in locked_shapes:
+            #if shape["y"] == 0:
+             #   running = false
         
         # Move left
         if keys[pygame.K_a]:
@@ -135,9 +139,9 @@ while running:
             player = pygame.Rect(player_x, player_y, player_width, player_height)
 
         # Speed up moving down
-        if keys[pygame.K_SPACE]:
-            player_y += 50
-            player = pygame.Rect(player_x, player_y, player_width, player_height)
+        #if keys[pygame.K_SPACE]:
+            #player_y += 50
+            #player = pygame.Rect(player_x, player_y, player_width, player_height)
 
         # Gravity
         player_y += 50
@@ -165,6 +169,8 @@ while running:
                     "shape": player_shape
                 })
 
+                score = score + 10
+
                 clear_full_rows()
 
                 player = spawn_player()
@@ -173,6 +179,10 @@ while running:
                 player_shape = player["shape"]
                 player_width = player["width"]
                 player_height = player["height"]
+
+            #if shape["y"] < 1:
+                #locked_shapes.remove(shape)
+                
 
         # Borders
         if player_x < 0:
@@ -193,6 +203,8 @@ while running:
                 "height": player_height,
                 "shape": player_shape
             })
+
+            score = score + 10
 
             clear_full_rows()
 
@@ -224,7 +236,7 @@ while running:
 
     # Draw locked shapes
     for shape in locked_shapes:
-
+        
         if shape["shape"] == "shape1":
             shape_colour = GREEN
         elif shape["shape"] == "shape2":
@@ -248,6 +260,10 @@ while running:
     # Draw the player
     player = pygame.Rect(player_x, player_y, player_width, player_height)
     pygame.draw.rect(screen, colour, player)
+
+    font = pygame.font.SysFont(None, 48)
+    message = font.render(f"SCORE {score}", True, WHITE)
+    screen.blit(message, (10, 10))
 
     # Update the display
     pygame.display.flip()
