@@ -67,7 +67,7 @@ player_size_y = 0
 # Music
 # Loads the tetris music file, sets the volume and then replays it when it ends
 pygame.mixer.music.load("03. A-Type Music (v1.1).mp3")
-pygame.mixer.music.set_volume(0.1)
+pygame.mixer.music.set_volume(0.25)
 pygame.mixer.music.play(-1)
 
 # Spawn player function
@@ -105,7 +105,7 @@ def spawn_player():
         "height": height,
     }
 
-# Use the player spawn function\
+# Use the player spawn function
 player = spawn_player()
 
 # Uses the spawn position, shape selected and size of that shape from the spawn player function
@@ -135,18 +135,22 @@ locked_shapes = []
 def clear_full_rows():
     global locked_shapes, score
 
+    # Store number of pixels in each row
     rows = {}
 
     # Count how many pixels are filled in each row
     for shape in locked_shapes:
         y = shape["y"]
 
+        # If the row is not in the rows list then it will add it to the list and set the value to 0, used to count the width of the shapes in that row
         if y not in rows:
             rows[y] = 0
 
+        # Adds the width of the shape to the row value
         rows[y] += shape["width"]
 
     # Find rows that are the size of the screen width
+    # List of full rows that will be cleared
     full_rows = []
 
     # Adds up the total width of the shapes and if the width is equal to the width of the screen then the line will get cleared
@@ -160,6 +164,7 @@ def clear_full_rows():
         # Add 100 score if a line gets cleared
         score = score + 100
 
+        # Remove shapes in the full row
         locked_shapes = [
             shape for shape in locked_shapes
             if shape["y"] != row_y
@@ -297,6 +302,7 @@ while running:
 
             # Locked shapes collision
             for shape in locked_shapes:
+                # Collision for locked shapes
                 locked_rect = pygame.Rect(
                     shape["x"],
                     shape["y"],
@@ -304,10 +310,13 @@ while running:
                     shape["height"]
                 )
 
+                # If the player collides with a locked shape    
                 if player_rect.colliderect(locked_rect):
 
+                    # Moves player up so the shapes dont phase into each other
                     player_y -= 50
 
+                    # Adds shape to locked shape list
                     locked_shapes.append({
                         "x": player_x,
                         "y": player_y,
@@ -316,10 +325,13 @@ while running:
                         "shape": player_shape
                     })
 
+                    # Adds 10 score for when a shape is placed
                     score = score + 10
 
+                    # Calls the function to clear full rows
                     clear_full_rows()
 
+                    # Spawns a new player shape
                     player = spawn_player()
                     player_x = player["x"]
                     player_y = player["y"]
@@ -327,21 +339,26 @@ while running:
                     player_width = player["width"]
                     player_height = player["height"]
 
+                # Removes shapes that are above the screen
+                # Meant to fix a bug where shapes would get locked on the player spawn point
                 if shape["y"] < 1:
                     locked_shapes.remove(shape)
                     
 
             # Borders
+            # Left border
             if player_x < 0:
                 player_x = 0
 
+            # Right border
             if player_x > SCREEN_WIDTH - player_width:
                 player_x = SCREEN_WIDTH - player_width
 
+            # Top border
             if player_y < 0:
                 player_y = 0
 
-            # Bottom border for if the player reaches it
+            # Bottom border if the player touches it, it adds the shape to the locked shapes list
             if player_y >= SCREEN_HEIGHT - player_height:
                 locked_shapes.append({
                     "x": player_x,
@@ -351,10 +368,13 @@ while running:
                     "shape": player_shape
                 })
 
+                # Adds 10 score for when a shape is placed
                 score = score + 10
 
+                # Calls the function to clear full rows
                 clear_full_rows()
 
+                # Spawns a new player shape
                 player = spawn_player()
                 player_x = player["x"]
                 player_y = player["y"]
@@ -368,24 +388,30 @@ while running:
     # Draw the background
     screen.fill(BACK)
 
+    # Draw the grid
     for wall in grid:
             pygame.draw.rect(screen, BLACK, wall)
 
+    # Colour for square shape
     if player_shape == "shape1":
         colour = GREEN
-    
+
+    # Colour for rectangle shape
     if player_shape == "shape2":
         colour = RED
 
+    # Colour for large rectangle shape
     if player_shape == "shape3":
         colour = BLUE
 
+    # Colour for line shape
     if player_shape == "shape4":
         colour = YELLOW
 
     # Draw locked shapes
     for shape in locked_shapes:
-        
+
+        # Colour for locked shapes
         if shape["shape"] == "shape1":
             shape_colour = GREEN
         elif shape["shape"] == "shape2":
@@ -395,6 +421,7 @@ while running:
         else:
             shape_colour = YELLOW
 
+        # Draw the locked shape
         pygame.draw.rect(
             screen,
             shape_colour,
@@ -417,14 +444,18 @@ while running:
         screen.blit(message, (150, 350))
         pygame.mixer.music.set_volume(0)
 
+    # Score, level and mode display
+    # Score
     font = pygame.font.SysFont(None, 48)
     message = font.render(f"SCORE {score}", True, WHITE)
     screen.blit(message, (10, 10))
 
+    # Level
     font = pygame.font.SysFont(None, 48)
     message = font.render(f"Level {level}", True, WHITE)
     screen.blit(message, (480, 10))
 
+    # Mode
     font = pygame.font.SysFont(None, 48)
     message = font.render(f"{mode}", True, WHITE)
     screen.blit(message, (250, 10))
