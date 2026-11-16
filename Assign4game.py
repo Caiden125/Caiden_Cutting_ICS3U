@@ -241,38 +241,38 @@ while running:
         # As the player gets farther the game changes
         # Level 2
         # Easy mode becomes normal mode
-        if tick == 5:
+        if mode == "EASY":
             if score >= 1000:
                 tick = 7.5
                 level = 2
 
         # Normal mode becomes hard mode
-        if tick == 7.5:
+        elif mode == "NORMAL":
             if score >= 1000:
                 tick = 10
                 level = 2
 
         # Hard mode becomes harder
-        if tick == 10:
+        else:
             if score >= 1000:
                 tick = 12.5
                 level = 2
 
         # Level 3
         # Easy mode becomes harder
-        if tick == 5:
+        if mode == "EASY":
             if score >= 2000:
                 tick = 10
                 level = 3
 
         # Normal mode becomes harder
-        if tick == 7.5:
+        elif mode == "NORMAL":
             if score >= 2000:
                 tick = 12.5
                 level = 3
 
         # Hard mode becomes harder
-        if tick == 10:
+        else:
             if score >= 2000:
                 tick = 15
                 level = 3
