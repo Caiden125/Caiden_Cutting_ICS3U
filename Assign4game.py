@@ -175,6 +175,14 @@ def clear_full_rows():
             if shape["y"] < row_y:
                 shape["y"] += 100
 
+# Function that checks if the player shape collides with any locked shapes, used to fix bug where shapes phase into each other
+def hits_locked(rect):
+    for shape in locked_shapes:
+        block = pygame.Rect(shape["x"], shape["y"], shape["width"], shape["height"])
+        if rect.colliderect(block):
+            return True
+    return False
+
 # Game loop
 while running:
 
@@ -285,15 +293,17 @@ while running:
                 if shape["y"] == 0:
                     loose = True
 
-            # Move left
+            # Move left only if theres nothing else blocking (so shapes dont phase into each other)
             if keys[pygame.K_a]:
-                player_x -= 50
-                player = pygame.Rect(player_x, player_y, player_width, player_height)
+                new_rect = pygame.Rect(player_x - 50, player_y, player_width, player_height)
+                if not hits_locked(new_rect):
+                    player_x -= 50
 
-            # Move right
+            # Move right only if theres nothing else blocking (so shapes dont phase into each other)
             if keys[pygame.K_d]:
-                player_x += 50
-                player = pygame.Rect(player_x, player_y, player_width, player_height)
+                new_rect = pygame.Rect(player_x + 50, player_y, player_width, player_height)
+                if not hits_locked(new_rect):
+                    player_x += 50
 
             # Gravity
             player_y += 50
